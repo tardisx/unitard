@@ -1,0 +1,10 @@
+# service file automatically created with github.com/tardisx/unitard
+
+[Unit]
+Description={{ .description }}
+
+[Service]
+ExecStart={{ .execStart }}
+
+[Install]
+WantedBy=default.target
