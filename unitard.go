@@ -213,7 +213,7 @@ func (u *Unit) setupEnvironment() error {
 		"user",
 	)
 
-	err = os.MkdirAll(unitFileDirectory, 0777)
+	err = os.MkdirAll(unitFileDirectory, 0700)
 	if err != nil {
 		return fmt.Errorf("cannot create the user systemd path '%s': %s", unitFileDirectory, err)
 	}

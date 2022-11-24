@@ -7,27 +7,32 @@
     import "github.com/tardisx/unitard"
 
     func main() {
-        appName := "coolapp"
-    	if deploy {
-    		unit, _ := unitard.NewUnit(appName)
-	    	unit.Deploy()
-            os.Exit(0)
-        }
-        // rest of your application here
+      appName := "coolapp"
+      if deploy {
+        // error checking ignored for this example
+        unit, _ := unitard.NewUnit(appName)
+        unit.Deploy()
+        os.Exit(0)
+      }
+      // rest of your application here
     }
 
 ## What it does
 
-`Deploy()` automatically creates a systemd unit file, reloads the systemd daemon
-so it can use it, enables the unit (so it starts on boot) and starts the service
+This package provides a simple interface to automatically creating and enabling a
+systemd "user unit" service, as part of your single-binary deployment.
+
+The `Deploy()` function creates the systemd unit file, reloads the systemd daemon
+so it reads it, enables the unit (to start on boot) and starts the service
 running.
 
-This means you can have a single binary deployment. Copy your executable to "somewhere"
-on your target system, run it with `-deploy` (or however you have enabled the call to `Deploy()`)
-and your application starts running in the background, and will restart on boot.
+Copy your executable to "somewhere" on your target system, run it with `-deploy` 
+(or however you have enabled the call to `Deploy()`) and your application starts 
+running in the background and will restart on boot.
 
-There is also an `Undeploy()` func, which you should of course
-provide as an option to your users. It stops the running service, removes the unit file and restarts systemd.
+There is also an `Undeploy()` func, which you should of course provide as an option 
+to your users. It stops the running service, removes the unit file and reloads the
+systemd daemon.
 
 ## What's with the name?
 
