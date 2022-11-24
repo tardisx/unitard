@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strings"
 	"text/template"
@@ -17,8 +18,9 @@ import (
 var fs embed.FS
 
 type Unit struct {
-	name   string
-	binary string
+	name       string
+	binary     string
+	binaryPath string
 
 	systemCtlPath string // path to systemctl command
 	unitFilePath  string
@@ -37,9 +39,11 @@ func NewUnit(unitName string, unitOpts ...UnitOpts) (Unit, error) {
 	if !ok {
 		return Unit{}, fmt.Errorf("sorry, name '%s' is not valid", unitName)
 	}
+	path, binPath := binaryInfo()
 	u := Unit{
-		name:   unitName,
-		binary: binaryName(),
+		name:       unitName,
+		binary:     binPath,
+		binaryPath: path,
 	}
 
 	if len(unitOpts) > 0 {
@@ -91,8 +95,9 @@ func (u Unit) writeTemplate(f io.Writer) error {
 	}
 
 	data := map[string]string{
-		"description": u.name,
-		"execStart":   u.binary,
+		"description":      u.name,
+		"execStart":        u.binary,
+		"workingDirectory": u.binaryPath,
 	}
 	err = t.ExecuteTemplate(f, "basic.service", data)
 	return err
@@ -163,14 +168,15 @@ func (u Unit) runExpectZero(command string, args ...string) error {
 	return nil
 }
 
-// binaryName returns the fully-qualified path to the binary on disk
-func binaryName() string {
+// binaryName returns the fully-qualified path to the binary and the qualified path of the binary
+func binaryInfo() (string, string) {
 	binary, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
+	dir, file := path.Split(binary)
 
-	return binary
+	return dir, dir + file
 }
 
 func checkName(name string) bool {

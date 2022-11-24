@@ -4,6 +4,7 @@
 Description={{ .description }}
 
 [Service]
+WorkingDirectory={{ .workingDirectory }}
 ExecStart={{ .execStart }}
 
 [Install]
