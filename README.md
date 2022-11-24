@@ -1,5 +1,7 @@
 # unitard - automatically deploy a systemd unit file from your application
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/tardisx/unitard.svg)](https://pkg.go.dev/github.com/tardisx/unitard)
+
 ## Synopsis
 
     import "github.com/tardisx/unitard"
