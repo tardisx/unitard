@@ -34,6 +34,9 @@ There is also an `Undeploy()` func, which you should of course provide as an opt
 to your users. It stops the running service, removes the unit file and reloads the
 systemd daemon.
 
+While it does shell out to call the `systemctl` tool, this does mean this package
+adds no new non-core dependencies to your project. 
+
 ## What's with the name?
 
 It's the systemd UNIT for Automatic Restart Deployment. Or, just a stupid pun based on my username.
