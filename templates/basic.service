@@ -5,7 +5,7 @@ Description={{ .description }}
 
 [Service]
 WorkingDirectory={{ .workingDirectory }}
-ExecStart={{ .execStart }}
+ExecStart={{ .execStart }} {{ .execStartArgs }}
 
 [Install]
 WantedBy=default.target

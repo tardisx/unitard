@@ -4,6 +4,7 @@ package unitard
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -21,12 +22,31 @@ type Unit struct {
 	name       string
 	binary     string
 	binaryPath string
+	binaryArgs string
 
 	systemCtlPath string // path to systemctl command
 	unitFilePath  string
 }
 
-type UnitOpts interface{}
+type UnitOpts interface {
+	Apply(u *Unit) error
+}
+
+// OptProgramArgs allows you to add an arguments to the invocation of the program
+type OptProgramArgs struct {
+	Args string // Program args
+}
+
+func (o OptProgramArgs) Apply(u *Unit) error {
+	if o.Args == "" {
+		return errors.New("can't set an empty args option")
+	}
+	if u.binaryArgs != "" {
+		return errors.New("args were already set - use OptProgramArgs only once")
+	}
+	u.binaryArgs = o.Args
+	return nil
+}
 
 // NewUnit creates a new systemd unit representation, with a particular name.
 // No changes will be made to the system configuration until Deploy or Undeploy
@@ -46,8 +66,11 @@ func NewUnit(unitName string, unitOpts ...UnitOpts) (Unit, error) {
 		binaryPath: path,
 	}
 
-	if len(unitOpts) > 0 {
-		return Unit{}, fmt.Errorf("sorry, UnitOpts are not yet supported")
+	for _, opt := range unitOpts {
+		err := opt.Apply(&u)
+		if err != nil {
+			return Unit{}, fmt.Errorf("bad option: %s", err)
+		}
 	}
 
 	err := u.setupEnvironment()
@@ -97,6 +120,7 @@ func (u Unit) writeTemplate(f io.Writer) error {
 	data := map[string]string{
 		"description":      u.name,
 		"execStart":        u.binary,
+		"execStartArgs":    u.binaryArgs,
 		"workingDirectory": u.binaryPath,
 	}
 	err = t.ExecuteTemplate(f, "basic.service", data)
